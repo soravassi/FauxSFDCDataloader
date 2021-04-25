@@ -7,7 +7,7 @@ from salesforce_bulk import CsvDictsAdapter, SalesforceBulk
 
 
 def login():
-    """Takes the user's credentials via tkinter form and shows action options"""
+    """Takes credentials via tkinter form and shows action options"""
     global sf
     try:
         global USERNAME, PASSWORD, TOKEN
@@ -87,7 +87,7 @@ def query_where(lista):
 
 
 def extract_fields():
-    """Compiles all the fields within a Salesforce.com object on a Tkinter Listbox"""
+    """Compiles all the fields within an object on a Tkinter Listbox"""
     global object_name
     object_name = select(entity, 0)
     options = sf.query_all(
@@ -143,13 +143,19 @@ def open_query():
     for each_item in range(len(optionList)):
         entity.insert(END, optionList[each_item])
 
-    show_fields = Button(query_window, text="Show Fields", command=extract_fields)
+    show_fields = Button(
+        query_window, text="Show Fields",
+        command=extract_fields
+    )
     show_fields.grid(row=1, column=1)
     global fields
     fields = Listbox(query_window, selectmode="multiple", width=70)
     fields.grid(row=2, column=1)
 
-    create_query = Button(query_window, text="Create Query", command=write_query)
+    create_query = Button(
+        query_window, text="Create Query",
+        command=write_query
+    )
     create_query.grid(row=4, column=1)
 
     global soql
@@ -160,14 +166,20 @@ def open_query():
     folder = Label(query_window, text="Select Folder")
     folder.grid(row=6, column=1)
 
-    button_browse = Button(query_window, text="Browse", command=browse_button)
+    button_browse = Button(
+        query_window, text="Browse",
+        command=browse_button
+    )
     button_browse.grid(row=7, column=1)
     global file
     file = Entry(query_window, width=70)
     file.grid(row=8, column=1)
     Label(query_window, text="   ").grid(row=9, column=1)
 
-    button_extract = Button(query_window, height=1, width=15, text="Extract", command=extract)
+    button_extract = Button(
+        query_window, height=1, width=15,
+        text="Extract", command=extract
+    )
     button_extract.grid(row=10, column=1)
 
 
@@ -184,7 +196,8 @@ def open_secondary(operation):
     global entity
     entity = Listbox(secondary_window, selectmode="single", width=70)
     entity.grid(row=0, column=1)
-    options = sf.query_all("SELECT ID, QualifiedAPIName from EntityDefinition order by QualifiedAPIName")
+    options = sf.query_all("SELECT ID, QualifiedAPIName from EntityDefinition"
+                           " order by QualifiedAPIName")
     optionList = []
     entity.delete(0, END)
     for record in options['records']:
@@ -193,22 +206,42 @@ def open_secondary(operation):
         entity.insert(END, optionList[each_item])
 
     Label(secondary_window,
-          text="Select a Excel or CSV file with the exact fields you want to " + operation.lower() + " with the correct API Names").grid(
-        row=6, column=1)
+          text="Select a Excel or CSV file with the exact fields you want to "
+               + operation.lower()
+               + " with the correct API Names"
+          ).grid(row=6, column=1)
 
-    button_browse = Button(secondary_window, text="Browse Input File", command=define_df)
+    button_browse = Button(
+        secondary_window,
+        text="Browse Input File",
+        command=define_df
+    )
     button_browse.grid(row=7, column=1)
 
     global folder
-    folder = Label(secondary_window, text="Select Folder to store results file")
+    folder = Label(
+        secondary_window,
+        text="Select Folder to store results file"
+    )
     folder.grid(row=8, column=1)
 
-    button_browse = Button(secondary_window, text="Browse Results Folder", command=browse_button)
+    button_browse = Button(
+        secondary_window,
+        text="Browse Results Folder",
+        command=browse_button
+    )
     button_browse.grid(row=9, column=1)
 
-    Label(secondary_window, text="   ").grid(row=10, column=1)
+    Label(
+        secondary_window,
+        text="   "
+    ).grid(row=10, column=1)
 
-    button_action = Button(secondary_window, text=str(operation), command=lambda: action(operation))
+    button_action = Button(
+        secondary_window,
+        text=str(operation),
+        command=lambda: action(operation)
+    )
     button_action.grid(row=11, column=1)
 
 
@@ -225,10 +258,15 @@ def action(operation):
 
     try:
         MsgBox = messagebox.askquestion("Operation", (
-            'You are about to {action} {length} records within the {obj} object within your Salesforce org. Are you sure you want to proceed?').format(
-            action=operation.lower(), length=str(len(impacted_records)), obj=object_name), icon='warning')
+            'You are about to {action} {length} records within the {obj} object'
+            ' within your Salesforce org. Are you sure you want to proceed?'
+        ).format(action=operation.lower(),
+                 length=str(len(impacted_records)),
+                 obj=object_name), icon='warning')
         if (MsgBox == 'yes'):
-            bulk = SalesforceBulk(username=USERNAME, password=PASSWORD, security_token=TOKEN)
+            bulk = SalesforceBulk(
+                username=USERNAME, password=PASSWORD, security_token=TOKEN
+            )
             if (operation == "Delete"):
                 job = bulk.create_delete_job(object_name, contentType='CSV')
             elif (operation == "Insert"):
@@ -249,7 +287,10 @@ def action(operation):
                 result_df['ID'][index] = str(results[index]).split("'")[1]
                 result_df['SUCCESS'][index] = str(results[index]).split("'")[3]
                 result_df['ERROR'][index] = str(results[index]).split("'")[7]
-            input_file = folder_path + "/" + "results" + bulk.get_batch_list(job)[0]['id'] + ".xlsx"
+            input_file = (folder_path
+                          + "/results"
+                          + bulk.get_batch_list(job)[0]['id']
+                          + ".xlsx")
             result_df.to_excel(input_file)
 
             messagebox.showinfo("Info", (
