@@ -324,7 +324,7 @@ def extract():
 
 
 root = Tk()
-root.title("Salesforce API Extractor")
+root.title("Salesforce.com Faux Dataloader")
 
 Label(root, text="Username").grid(row=2, column=1)
 user = Entry(root, width=70)
